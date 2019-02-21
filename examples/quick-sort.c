@@ -44,7 +44,11 @@ int main(void)
     struct timespec start, end;
     size_t i;
 
+#if select
     random_shuffle_array(values, (uint16_t) ARRAY_SIZE(values));
+#elif 1 - select
+    sequential_array(values, (uint16_t) ARRAY_SIZE(values));
+#endif
 
     INIT_LIST_HEAD(&testlist);
 

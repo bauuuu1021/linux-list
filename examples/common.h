@@ -1,7 +1,10 @@
 #include <time.h>
 #include "../private/common.h"
 
-#define N 1000
+#define N 50000 /* problem size */
+#define select                     \
+    0 /* random data when equals 1 \
+      sequential data when equals 0 */
 
 static double diff_in_second(struct timespec t1, struct timespec t2)
 {
