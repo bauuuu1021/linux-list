@@ -5,14 +5,13 @@
 
 #include "common.h"
 
-static uint16_t values[16];
+static uint16_t values[1024];
 
 static void list_combine(struct list_head *p, struct list_head *q)
 {
     struct listitem *left, *right;
     struct list_head result;
     INIT_LIST_HEAD(&result);
-
 
     struct listitem *cur, *is;
     while (!list_empty(p) && !list_empty(q)) {
@@ -23,14 +22,7 @@ static void list_combine(struct list_head *p, struct list_head *q)
             list_move_tail(&left->list, &result);
         else
             list_move_tail(&right->list, &result);
-
-        printf("result:");
-        list_for_each_entry_safe (cur, is, &result, list) {
-            printf(" %d ", cur->i);
-        }
-        printf("\n");
     }
-
 
     if (!list_empty(p)) {
         list_for_each_entry_safe (cur, is, p, list) {
@@ -42,13 +34,11 @@ static void list_combine(struct list_head *p, struct list_head *q)
             list_move_tail(&cur->list, &result);
         }
     }
-    printf("test\n");
+
     INIT_LIST_HEAD(p);
     list_for_each_entry_safe (cur, is, &result, list) {
-        printf("%d ", cur->i);
         list_move_tail(&cur->list, p);
     }
-    printf("test\n");
 }
 
 static void list_merge(struct list_head *head, int n)
@@ -69,25 +59,19 @@ static void list_merge(struct list_head *head, int n)
         list_move_tail(head->next, &q);
 
     struct listitem *cur, *is;
-    list_for_each_entry_safe (cur, is, &p, list) {
-        printf("%d ", cur->i);
-    }
-    printf("\n");
-    list_for_each_entry_safe (cur, is, &q, list) {
-        printf("%d ", cur->i);
-    }
-    printf("\n");
-
 
     list_merge(&p, n / 2);
     list_merge(&q, n - n / 2);
     list_combine(&p, &q);
+    list_for_each_entry_safe (cur, is, &p, list) {
+        list_move_tail(&cur->list, head);
+    }
 }
 
 int main(void)
 {
     struct list_head testlist;
-    struct listitem *item, *is = NULL;
+    struct listitem *item, *cur, *is = NULL;
     size_t i;
 
     random_shuffle_array(values, (uint16_t) ARRAY_SIZE(values));
@@ -100,7 +84,6 @@ int main(void)
         item = (struct listitem *) malloc(sizeof(*item));
         assert(item);
         item->i = values[i];
-        printf("%d\n", item->i);
         list_add_tail(&item->list, &testlist);
     }
 
@@ -109,9 +92,15 @@ int main(void)
     int n = ARRAY_SIZE(values);
     list_merge(&testlist, n);
 
-    struct listitem *cur;
-
-    list_for_each_entry_safe (cur, is, &testlist, list) {
-        printf("[]%d ", cur->i);
+    qsort(values, ARRAY_SIZE(values), sizeof(values[0]), cmpint);
+    i = 0;
+    list_for_each_entry_safe (item, is, &testlist, list) {
+        assert(item->i == values[i]);
+        list_del(&item->list);
+        free(item);
+        i++;
     }
+
+    assert(i == ARRAY_SIZE(values));
+    assert(list_empty(&testlist));
 }

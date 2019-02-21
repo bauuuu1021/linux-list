@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "list.h"
+#include "../include/list.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
