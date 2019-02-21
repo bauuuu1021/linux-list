@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-static uint16_t values[1024];
+static uint16_t values[N];
 
 static void list_combine(struct list_head *p, struct list_head *q)
 {
@@ -72,6 +72,7 @@ int main(void)
 {
     struct list_head testlist;
     struct listitem *item, *cur, *is = NULL;
+    struct timespec start, end;
     size_t i;
 
     random_shuffle_array(values, (uint16_t) ARRAY_SIZE(values));
@@ -90,7 +91,10 @@ int main(void)
     assert(!list_empty(&testlist));
 
     int n = ARRAY_SIZE(values);
+    clock_gettime(CLOCK_REALTIME, &start);
     list_merge(&testlist, n);
+    clock_gettime(CLOCK_REALTIME, &end);
+    printf("merge sort  : %f sec\n", diff_in_second(start, end));
 
     qsort(values, ARRAY_SIZE(values), sizeof(values[0]), cmpint);
     i = 0;
@@ -103,4 +107,6 @@ int main(void)
 
     assert(i == ARRAY_SIZE(values));
     assert(list_empty(&testlist));
+
+    return 0;
 }

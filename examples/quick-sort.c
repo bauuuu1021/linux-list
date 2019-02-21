@@ -1,10 +1,11 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
 
 #include "common.h"
 
-static uint16_t values[256];
+static uint16_t values[N];
 
 static void list_qsort(struct list_head *head)
 {
@@ -40,6 +41,7 @@ int main(void)
 {
     struct list_head testlist;
     struct listitem *item, *is = NULL;
+    struct timespec start, end;
     size_t i;
 
     random_shuffle_array(values, (uint16_t) ARRAY_SIZE(values));
@@ -57,9 +59,12 @@ int main(void)
 
     assert(!list_empty(&testlist));
 
-    qsort(values, ARRAY_SIZE(values), sizeof(values[0]), cmpint);
+    clock_gettime(CLOCK_REALTIME, &start);
     list_qsort(&testlist);
+    clock_gettime(CLOCK_REALTIME, &end);
+    printf("quick sort  : %f sec\n", diff_in_second(start, end));
 
+    qsort(values, ARRAY_SIZE(values), sizeof(values[0]), cmpint);
     i = 0;
     list_for_each_entry_safe (item, is, &testlist, list) {
         assert(item->i == values[i]);
