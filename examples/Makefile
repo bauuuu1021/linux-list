@@ -12,4 +12,4 @@ test: insert-sort quick-sort merge-sort
 
 .PHONY: clean
 clean:
-	rm insert-sort quick-sort merge-sort
+	rm -rf insert-sort quick-sort merge-sort *.png
