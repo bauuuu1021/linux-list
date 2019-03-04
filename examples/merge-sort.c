@@ -41,10 +41,11 @@ static void list_combine(struct list_head *p, struct list_head *q)
     }
 }
 
-static void list_merge(struct list_head *head, int n)
+static void list_mergesort(struct list_head *head)
 {
     struct list_head p, q;
-    int i;
+    struct listitem *cur, *is;
+    int i, n = 0;
 
     if (list_empty(head) || list_is_singular(head))
         return;
@@ -52,16 +53,17 @@ static void list_merge(struct list_head *head, int n)
     INIT_LIST_HEAD(&p);
     INIT_LIST_HEAD(&q);
 
+    list_for_each_entry_safe (cur, is, head, list)
+        n++;
+
     for (i = 0; i < n / 2; i++)
         list_move_tail(head->next, &p);
 
     for (i = 0; i < n - n / 2; i++)
         list_move_tail(head->next, &q);
 
-    struct listitem *cur, *is;
-
-    list_merge(&p, n / 2);
-    list_merge(&q, n - n / 2);
+    list_mergesort(&p);
+    list_mergesort(&q);
     list_combine(&p, &q);
     list_for_each_entry_safe (cur, is, &p, list) {
         list_move_tail(&cur->list, head);
@@ -94,9 +96,8 @@ int main(void)
 
     assert(!list_empty(&testlist));
 
-    int n = ARRAY_SIZE(values);
     clock_gettime(CLOCK_REALTIME, &start);
-    list_merge(&testlist, n);
+    list_mergesort(&testlist);
     clock_gettime(CLOCK_REALTIME, &end);
     printf("merge sort  : %f sec\n", diff_in_second(start, end));
 
